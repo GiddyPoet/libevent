@@ -39,3 +39,10 @@ void main_loop(evutil_socket_t fd)
 ```
 
 如果不为事件设置优先级,则默认的优先级将会是 event_base 的优先级数目除以2。
+
+> 
+
+```c
+base = event_base_new();			/* This API must be placed after setrlimit(). */
+event_priority_init(base,11);  /* 0-10, default is 5. */
+```

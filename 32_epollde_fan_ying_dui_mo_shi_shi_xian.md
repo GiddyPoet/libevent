@@ -108,11 +108,13 @@ void acceptconn(int lfd, int events, void *arg)
     }
 
     do {
+        // 找到第一个没有使用的event
         for (i = 0; i < MAX_EVENTS; i++) {
             if (g_events[i].status == 0)
                 break;
         }
 
+        // 触发上限
         if (i == MAX_EVENTS) {
             printf("%s: max connect limit[%d]\n", __func__, MAX_EVENTS);
             break;

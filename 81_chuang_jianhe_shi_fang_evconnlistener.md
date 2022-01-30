@@ -46,6 +46,7 @@ evconnlistener_new()函数假定已经将套接字绑定到要监听的端口,�
 
 可以给 evconnlistener_new() 函数的 flags 参数传入一些标志。可以用或 (OR)运算任意连接 下述标志:
 
+> 默认行为会设置套接字为非阻塞的状态
 * LEV_OPT_LEAVE_SOCKETS_BLOCKING 
 
 默认情况下,连接监听器接收新套接字后,会将其设置为非阻塞的,以便将其用于 libevent。如果不想要这种行为,可以设置这个标志。
@@ -55,14 +56,18 @@ evconnlistener_new()函数假定已经将套接字绑定到要监听的端口,�
  
 如果设置了这个选项,释放连接监听器会关闭底层套接字。
 
+> 执行exec时关闭套接字
 * LEV_OPT_CLOSE_ON_EXEC
 
 如果设置了这个选项,连接监听器会为底层套接字设置 close-on-exec 标志。更多信息请查 看 fcntl 和 FD_CLOEXEC 的平台文档。
 
+
+> SO_REUSEADDR
 * LEV_OPT_REUSEABLE
 
 某些平台在默认情况下 ,关闭某监听套接字后 ,要过一会儿其他套接字才可以绑定到同一个 端口。设置这个标志会让 libevent 标记套接字是可重用的,这样一旦关闭,可以立即打开其 他套接字,在相同端口进行监听。
 
+> 线程安全
 * LEV_OPT_THREADSAFE 
  
 为监听器分配锁,这样就可以在多个线程中安全地使用了。这是 2.0.8-rc 的新功能。

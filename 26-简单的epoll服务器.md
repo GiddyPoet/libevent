@@ -179,6 +179,7 @@ void setnoblocking(int fd)
     int opts = 0;
     opts = fcntl(fd, F_GETFL);
     opts = opts | O_NONBLOCK;
+    // 调用错误
     fcntl(fd, F_SETFL);
 }
 
@@ -220,6 +221,7 @@ int main(int argc, char **argv)
         exit(0);
     }
 
+    // 这里明显有问题，没有调用非阻塞的socket
     setnoblocking(sockfd);
 
     char input[100];

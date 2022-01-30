@@ -85,6 +85,8 @@ void main_loop(evutil_socket_t fd1, evutil_socket_t fd2)
 
 这个标志表示某超时时间流逝后事件成为激活的。构造事件的时候,EV_TIMEOUT 标志是 被忽略的:可以在添加事件的时候设置超时 ,也可以不设置。超时发生时,回调函数的 what 参数将带有这个标志。
 
+> 实际上没有注册EV_TIMEOUT，计时器也会添加该事件，在回调里放入该event。
+
 * EV_READ
 
 表示指定的文件描述符已经就绪,可以读取的时候,事件将成为激活的。
@@ -160,5 +162,31 @@ evsignal_*宏从2.0.1-alpha 版本开始存在。先前版本中这些宏叫做 
 
 ### 关于信号的警告
 
+> 同时只支持一个event_base，因此避免创建多个event_base
+
 在当前版本的 libevent 和大多数后端中,每个进程任何时刻只能有一个 event_base 可以监 听信号。如果同时向两个 event_base 添加信号事件,即使是不同的信号,也只有一 个 event_base 可以取得信号。
 kqueue 后端没有这个限制。
+
+
+### 关于`event_assign`
+
+event_new的实现其实是间接的调用的event_assign，首先调用mm_malloc分配一块内存，然后调用event_assign来给event类型的对象各个成员赋值。其实event_assign的作用就是把给定的event类型对象的每一个成员赋予一个指定的值。
+
+
+
+```c
+struct event *
+event_new(struct event_base *base, evutil_socket_t fd, short events, void (*cb)(evutil_socket_t, short, void *), void *arg)
+{
+    struct event *ev;
+    ev = mm_malloc(sizeof(struct event));
+    if (ev == NULL)
+        return (NULL);
+    if (event_assign(ev, base, fd, events, cb, arg) < 0) {
+        mm_free(ev);
+        return (NULL);
+    }
+
+    return (ev);
+}
+```
